@@ -1,1 +1,1 @@
-window.VIDEOS = ["haakjes-n1","herleiden-n1","herleiden-n2","herleiden-n3"];
+window.VIDEOS = ["haakjes-n1","haakjes-n2","haakjes-n3","herleiden-n1","herleiden-n2","herleiden-n3","machten-n1","machten-n2","machten-n3","machtenletters-n1","machtenletters-n2","machtenletters-n3","wetenschappelijk-n1","wetenschappelijk-n2","wetenschappelijk-n3"];

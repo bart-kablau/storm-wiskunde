@@ -621,7 +621,8 @@ const STACK = VAK.stapelGrootte || 6, RONDE = 5;
 const VOICE = VAK.spraak.antwoordLang;
 const DOEL  = VAK.doelLabel || "";
 const WIS   = !!VAK.wiskunde;
-const BEGRIP = WIS ? "begrippen" : "woorden";   // labelwoord voor de stapel-leerloop
+const BEGRIPVAK = WIS || !!VAK.begripVak;   // begrippen-vak (wiskunde/aardrijkskunde): begrippen i.p.v. woorden/grammatica
+const BEGRIP = BEGRIPVAK ? "begrippen" : "woorden";   // labelwoord voor de stapel-leerloop
 /* content-globals: canonieke namen met terugval op de oude (Engels/Frans content.js) */
 window.LEERSTOF  = window.LEERSTOF  || window.GRAMMATICA || [];
 window.BEGRIPPEN = window.BEGRIPPEN || window.WOORDEN || {};
@@ -1349,13 +1350,13 @@ function toonWoord(){
   el("wt-next").style.display="none";
   updateWtMeta();
   if(it.fase==="kies"){ // receptieve meerkeuze-opstap (eerst succes proeven, dan pas typen)
-    el("wt-vraag").textContent = WIS?"Welk begrip hoort hierbij?":("Welk "+DOEL+" woord hoort hierbij?");
+    el("wt-vraag").textContent = BEGRIPVAK?"Welk begrip hoort hierbij?":("Welk "+DOEL+" woord hoort hierbij?");
     el("wt-gap").style.display="none";
     const mc=el("wt-mc"); mc.style.display="flex"; mc.innerHTML="";
     const goed=it.w[1], anderen=shuffle(BEGRIPPEN[it.th].items.filter(x=>x[1]!==goed)).slice(0,3).map(x=>x[1]);
     shuffle([goed,...anderen]).forEach(opt=>{ const b=document.createElement("button"); b.className="opt"; b.textContent=opt; b.onclick=()=>kiesMC(b,opt); mc.appendChild(b); });
   } else { // productief typen (de maatstaf)
-    el("wt-vraag").textContent = WIS?"Welk begrip is dit?":("Wat is dit in het "+DOEL+"?");
+    el("wt-vraag").textContent = BEGRIPVAK?"Welk begrip is dit?":("Wat is dit in het "+DOEL+"?");
     el("wt-mc").style.display="none";
     const inp=el("wt-input"); el("wt-gap").style.display="flex"; inp.value=""; inp.disabled=false;
     setTimeout(()=>inp.focus(),50);
@@ -1557,15 +1558,15 @@ function initVak(){
   const bn=document.querySelector(".brand-name");
   if(bn) bn.innerHTML='<span class="dot">'+(VAK.badge||"")+'</span> '+(VAK.brand||VAK.titel||"Storm leert");
   setText("mascot", VAK.mascotEmoji||"🦦");
-  setText("th-leerstof",  WIS?"Onderwerpen oefenen":"Grammatica oefenen");
-  setText("hd-leerstof",  WIS?"Onderwerpen":"Grammatica");
-  setText("th-begrippen", WIS?"Begrippen leren":"Woorden leren");
-  setText("hd-begrippen", WIS?"Begrippen":"Woorden");
+  setText("th-leerstof",  BEGRIPVAK?"Onderwerpen oefenen":"Grammatica oefenen");
+  setText("hd-leerstof",  BEGRIPVAK?"Onderwerpen":"Grammatica");
+  setText("th-begrippen", BEGRIPVAK?"Begrippen leren":"Woorden leren");
+  setText("hd-begrippen", BEGRIPVAK?"Begrippen":"Woorden");
   setText("ring-label",   BEGRIP);
-  setText("st-woorden-label", WIS?"Begrippen geleerd:":"Woorden geleerd:");
-  setText("l-tag-back",   WIS?"Begrip":(DOEL||"Antwoord"));
-  const inp=el("wt-input"); if(inp) inp.placeholder = WIS?"typ het begrip…":("typ het "+DOEL+"e woord…");
-  if(WIS){ const bs=el("begrippen-sub"); if(bs) bs.textContent="Vakbegrippen leren: eerst kijken, dan zelf typen."; }
+  setText("st-woorden-label", BEGRIPVAK?"Begrippen geleerd:":"Woorden geleerd:");
+  setText("l-tag-back",   BEGRIPVAK?"Begrip":(DOEL||"Antwoord"));
+  const inp=el("wt-input"); if(inp) inp.placeholder = BEGRIPVAK?"typ het begrip…":("typ het "+DOEL+"e woord…");
+  if(BEGRIPVAK){ const bs=el("begrippen-sub"); if(bs) bs.textContent="Begrippen leren: eerst kijken, dan zelf typen."; }
   // 3e tegel: spel (talen) of proeftoets (wiskunde)
   const key = VAK.tegels.includes("proeftoets") ? "proeftoets" : (VAK.tegels.includes("spel")?"spel":null);
   const t3=el("tile-3");
