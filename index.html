@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>Frans met Storm — Quel week-end!</title>
+<title>Storm leert</title>
 <link rel="icon" href="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'&gt;&lt;text y='52' font-size='52'&gt;🦦&lt;/text&gt;&lt;/svg&gt;" />
 <style>
 /* ===== Fonts (gebundeld, offline) ===== */
@@ -811,12 +811,15 @@ function openTopic(id){
   }
   if(lv.regel){ html+=`<div class="regel">📌 <b>Onthoud:</b> ${wisHTML(lv.regel)}</div>`; }
   el("u-body").innerHTML=html;
-  const vid=huidigTopic+"-n"+st.niveau;
-  el("u-video-btn").style.display=(window.VIDEOS&&window.VIDEOS.includes(vid))?"flex":"none";
+  el("u-video-btn").style.display = vidId() ? "flex" : "none";
   el("u-oefen-btn").style.display = st.beheerst ? "flex" : "none";   // 'blijf oefenen' pas zichtbaar na goud
   show("uitleg");
 }
-function openVideoVoorHuidig(){ const st=gramState(huidigTopic); openVideo(huidigTopic+"-n"+st.niveau); }
+/* video-id: eerst per niveau (topic-nX), anders één video per onderwerp (topic) */
+function vidId(){ if(!window.VIDEOS||!huidigTopic) return null; const st=gramState(huidigTopic);
+  const a=huidigTopic+"-n"+st.niveau; if(window.VIDEOS.includes(a)) return a;
+  if(window.VIDEOS.includes(huidigTopic)) return huidigTopic; return null; }
+function openVideoVoorHuidig(){ const v=vidId(); if(v) openVideo(v); }
 
 /* ---------- QUIZ / RONDE ---------- */
 let ronde=null;
