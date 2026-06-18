@@ -2010,3 +2010,205 @@ window.AANMOEDIGING = {
   ]
 };
 
+/* =========================================================================
+   GENERATORS — parametrische vraag-sjablonen per onderwerp×niveau.
+   Elke functie levert een VERS vraagobject (met willekeurige getallen binnen
+   een vaste moeilijkheidsband). De engine mengt deze met roterende vaste
+   vragen, zodat elke ronde anders is en Storm de antwoorden niet uit het
+   hoofd kan leren. Reken-types (stap/bouw/velden) → math.js kijkt numeriek na.
+   Elk object heeft w + meer, zodat een FOUT antwoord altijd uitleg geeft.
+   ========================================================================= */
+(function(){
+  const ri  = (lo,hi)=> lo + Math.floor(Math.random()*(hi-lo+1));
+  const pick= a => a[Math.floor(Math.random()*a.length)];
+  const pe  = e => (e && e!==1) ? "^"+e : "";              // exponent-suffix (^1 = niets)
+  // coëfficiënt·letter(^exp): 0→"0", ±1·x→±x, kale constante als L leeg is
+  function co(c, L, e){
+    if(c===0) return "0";
+    const pw = (e && e>1) ? "^"+e : "";
+    if(!L) return String(c);
+    const mag = (Math.abs(c)===1) ? "" : Math.abs(c);
+    return (c<0?"-":"") + mag + L + pw;
+  }
+  // polynoom uit termen [{c,v,e}], nette tekens, 0-termen weg
+  function poly(terms){
+    const t = terms.filter(x=>x && x.c!==0);
+    if(!t.length) return "0";
+    let s = co(t[0].c, t[0].v, t[0].e);
+    for(let i=1;i<t.length;i++){ const x=t[i]; s += (x.c<0?" - ":" + ") + co(Math.abs(x.c), x.v, x.e); }
+    return s;
+  }
+  const G = {};
+
+  /* ---------- 8.1 HERLEIDEN ---------- */
+  G.herleiden_n1 = [
+    ()=>{ const L=pick(["a","b","x","y","p","q"]), a=ri(2,9), b=ri(2,9), s=a+b;
+      return { t:"stap", opgave:`${a}${L} + ${b}${L}`, vars:[L],
+        w:`${a} + ${b} = ${s}, en de ${L} blijft staan.`,
+        meer:`${a}${L} + ${b}${L} = (${a} + ${b})${L} = ${s}${L}.`,
+        stappen:[{ prompt:"Neem de gelijksoortige termen samen", a:`${s}${L}`,
+          hints:[`${a}${L} en ${b}${L} zijn allebei '${L}' → tel ${a} + ${b}`, `${a} + ${b} = ${s}, dus ${s}${L}`] }] }; },
+    ()=>{ const L=pick(["a","b","x","y"]), a=ri(2,7), b=ri(2,6), c=ri(2,9), s=a+b;
+      return { t:"stap", opgave:`${co(a,L)} + ${c} + ${co(b,L)}`, vars:[L],
+        w:`${a}${L} + ${b}${L} = ${s}${L}; de ${c} blijft los.`,
+        meer:`Tel de ${L}-termen: ${a}${L} + ${b}${L} = ${s}${L}. De ${c} is geen ${L} → die blijft staan: ${s}${L} + ${c}.`,
+        stappen:[
+          { prompt:`Neem de ${L}-termen samen`, a:`${s}${L}`, hints:[`${a}${L} + ${b}${L}`, `${a} + ${b} = ${s} → ${s}${L}`] },
+          { prompt:"Schrijf nu de hele herleiding op", a:`${s}${L} + ${c}`, hints:[`De ${c} hoort er los bij`, `${s}${L} + ${c}`] } ] }; }
+  ];
+  G.herleiden_n2 = [
+    ()=>{ const L=pick(["x","a","y","p"]), A=ri(2,6), B=ri(2,6), C=ri(2,6), D=ri(2,5);
+      const s1=pick([1,-1]), s2=pick([1,-1]), p1=s1*A*B, p2=s2*C*D, res=p1+p2;
+      const opg = `${s1<0?"-":""}${A}·${B}${L} ${s2<0?"- ":"+ "}${C}·${D}${L}`;
+      return { t:"stap", opgave:opg, vars:[L],
+        w:"Eerst keer, dan samennemen.",
+        meer:`${s1<0?"-":""}${A}·${B}${L} = ${p1}${L} en ${s2<0?"-":"+"}${C}·${D}${L} = ${s2<0?"-":""}${C*D}${L}. Samen: ${poly([{c:p1,v:L},{c:p2,v:L}])} = ${co(res,L)}.`,
+        stappen:[
+          { prompt:"Reken eerst de twee producten uit", a:poly([{c:p1,v:L},{c:p2,v:L}]),
+            hints:[`${s1<0?"-":""}${A}·${B}${L} = ${p1}${L}`, `${s2<0?"-":"+"}${C}·${D}${L} = ${s2<0?"-":""}${C*D}${L}`] },
+          { prompt:"Neem nu samen", a:co(res,L),
+            hints:[`${poly([{c:p1,v:L},{c:p2,v:L}])} = (${p1} + ${p2})${L}`, `${p1} + ${p2} = ${res} → ${co(res,L)}`] } ] }; }
+  ];
+  G.herleiden_n3 = [
+    ()=>{ const X=pick(["a","p","x"]), Y=pick(["b","q","y"]);
+      const a=ri(3,8), b=ri(3,8), c=ri(1,a-1), d=ri(1,b-1), rx=a-c, ry=b-d;
+      const terms=[{c:a,v:X},{c:b,v:Y},{c:-c,v:X},{c:-d,v:Y}];
+      // schud de volgorde van de opgave een beetje (eerste term blijft positief)
+      const rest=[terms[1],terms[2],terms[3]]; for(let i=rest.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[rest[i],rest[j]]=[rest[j],rest[i]];}
+      const opg=poly([terms[0],...rest]);
+      return { t:"bouw", q:`Herleid: ${opg}`, a:poly([{c:rx,v:X},{c:ry,v:Y}]), vars:[X,Y],
+        w:`Neem de ${X}'en samen en de ${Y}'s samen.`,
+        meer:`${X}-termen: ${a}${X} - ${c}${X} = ${co(rx,X)}. ${Y}-termen: ${b}${Y} - ${d}${Y} = ${co(ry,Y)}. Samen: ${poly([{c:rx,v:X},{c:ry,v:Y}])}.` }; }
+  ];
+
+  /* ---------- 8.2 HAAKJES ---------- */
+  G.haakjes_n1 = [
+    ()=>{ const L=pick(["a","x","p"]), k=ri(2,6), b=ri(1,9), s=pick([1,-1]);
+      const opg=`${k}(${L} ${s<0?"-":"+"} ${b})`, ans=poly([{c:k,v:L},{c:s*k*b,v:""}]);
+      return { t:"stap", opgave:opg, vars:[L],
+        w:`De ${k} gaat langs de ${L} én langs de ${b}.`,
+        meer:`${opg} = ${k}·${L} ${s<0?"-":"+"} ${k}·${b} = ${ans}.`,
+        stappen:[{ prompt:"Werk de haakjes weg", a:ans,
+          hints:[`${k}·${L} = ${co(k,L)}`, `${k}·${b} = ${k*b} (teken: ${s<0?"min":"plus"})`] }] }; },
+    ()=>{ const L=pick(["a","x"]), j=ri(2,5), k=ri(2,5), b=ri(2,9), s=pick([1,-1]);
+      const opg=`${j}(${co(k,L)} ${s<0?"-":"+"} ${b})`, ans=poly([{c:j*k,v:L},{c:s*j*b,v:""}]);
+      return { t:"stap", opgave:opg, vars:[L],
+        w:`De ${j} gaat langs ${co(k,L)} én langs de ${b}.`,
+        meer:`${opg} = ${j}·${co(k,L)} ${s<0?"-":"+"} ${j}·${b} = ${ans}.`,
+        stappen:[{ prompt:"Werk de haakjes weg", a:ans,
+          hints:[`${j}·${k}${L} = ${j*k}${L}`, `${j}·${b} = ${j*b} (teken: ${s<0?"min":"plus"})`] }] }; }
+  ];
+  G.haakjes_n2 = [
+    ()=>{ const L=pick(["a","x","p"]), M=pick(["b","y","q"]), j=ri(2,5), k=ri(2,5), m=ri(2,8), s=pick([1,-1]);
+      const opg=`${j}${L}(${k}${M} ${s<0?"-":"+"} ${m})`;
+      const ans=`${j*k}${L}${M} ${s<0?"- ":"+ "}${j*m}${L}`;
+      return { t:"bouw", q:`Werk de haakjes weg: ${opg}`, a:ans, vars:[L,M],
+        w:`Alles vóór de haak (${j}${L}) gaat langs elk stukje.`,
+        meer:`${opg} = ${j}${L}·${k}${M} ${s<0?"-":"+"} ${j}${L}·${m} = ${j*k}${L}${M} ${s<0?"-":"+"} ${j*m}${L}.` }; }
+  ];
+  G.haakjes_n3 = [
+    ()=>{ const L=pick(["p","a","x"]), M=pick(["q","b","y"]), k=ri(2,6), a=ri(1,5), b=ri(1,5);
+      const opg=`-${k}(${co(a,L)} - ${co(b,M)})`, ans=poly([{c:-k*a,v:L},{c:k*b,v:M}]);
+      return { t:"bouw", q:`Werk de haakjes weg: ${opg}`, a:ans, vars:[L,M],
+        w:`Een min vóór de haak draait elk teken binnen de haak om.`,
+        meer:`${opg} = -${k}·${co(a,L)} + ${k}·${co(b,M)} = ${ans}. (min·min = plus bij de tweede term.)` }; }
+  ];
+
+  /* ---------- 8.3 MACHTEN ---------- */
+  G.machten_n1 = [
+    ()=>{ const b=ri(2,6), e=pick([2,3]), val=Math.pow(b,e), prod=Array(e).fill(b).join("·");
+      return { t:"stap", opgave:`${b}^${e}`, vars:[],
+        w:`${b}^${e} = ${e} keer de ${b} keer elkaar.`,
+        meer:`${b}^${e} = ${prod} = ${val}. (Niet ${b}·${e} = ${b*e}!)`,
+        stappen:[
+          { prompt:`Schrijf ${b}^${e} als keer-som`, a:prod, hints:[`De exponent ${e} zegt: schrijf de ${b} ${e} keer op`, `Met keer-tekens ertussen: ${prod}`] },
+          { prompt:"Reken nu uit", a:String(val), hints:[`${prod}`, `= ${val}`] } ] }; }
+  ];
+  G.machten_n2 = [
+    ()=>{ const b=ri(2,5), e=pick([2,3,4]), val=Math.pow(-b,e), prod=Array(e).fill(`(-${b})`).join("·");
+      return { t:"stap", opgave:`(-${b})^${e}`, vars:[],
+        w: e%2===0 ? `Even exponent → plus-antwoord.` : `Oneven exponent → min-antwoord.`,
+        meer:`(-${b})^${e} = ${prod} = ${val}. ${e%2===0?"Even aantal minnen → plus.":"Oneven aantal minnen → min."}`,
+        stappen:[{ prompt:`Bereken (-${b})^${e}`, a:String(val),
+          hints:[`${e} is ${e%2===0?"even → plus":"oneven → min"}`, `${prod} = ${val}`] }] }; }
+  ];
+  G.machten_n3 = [
+    ()=>{ const b=ri(2,5), e=pick([2,3,4]), val=Math.pow(-b,e);
+      return { t:"stap", opgave:`(-${b})^${e}`, vars:[],
+        w:`Mét haakjes telt de min mee in de macht.`,
+        meer:`(-${b})^${e} = ${Array(e).fill(`(-${b})`).join("·")} = ${val}.`,
+        stappen:[{ prompt:`Bereken (-${b})^${e} (let op de haakjes!)`, a:String(val),
+          hints:[`De min zit ín de haakjes, dus telt mee`, `= ${val}`] }] }; },
+    ()=>{ const b=ri(2,5), e=pick([2,3,4]), pw=Math.pow(b,e), val=-pw;
+      return { t:"stap", opgave:`-${b}^${e}`, vars:[],
+        w:`Geen haakjes om de basis → eerst de macht, het minteken blijft ervoor.`,
+        meer:`Zonder haakjes telt de min niet mee in de macht: -${b}^${e} = -(${b}^${e}) = -${pw} = ${val}.`,
+        stappen:[{ prompt:`Bereken -${b}^${e} (geen haakjes om de ${b}!)`, a:String(val),
+          hints:[`Eerst ${b}^${e} = ${pw}`, `De min blijft ervoor: ${val}`] }] }; }
+  ];
+
+  /* ---------- 8.4 WETENSCHAPPELIJKE NOTATIE ---------- */
+  G.wetenschappelijk_n1 = [
+    ()=>{ const d=ri(2,9), n=ri(2,6), num=d*Math.pow(10,n);
+      return { t:"velden", q:`Schrijf ${num} in wetenschappelijke notatie. Vul de twee delen in.`,
+        velden:[ {label:"Het getal tussen 1 en 10 (a) =", a:String(d)}, {label:"De macht van 10 (n) =", a:String(n)} ],
+        w:`a = ${d} en de komma schuift ${n} plaatsen.`,
+        meer:`${num} = ${d}·10^${n}. Want de ${d} met ${n} nullen erachter is ${num}.` }; }
+  ];
+  G.wetenschappelijk_n2 = [
+    ()=>{ const d1=ri(1,9), d2=ri(1,9), zeros=ri(2,7), numStr=`${d1}${d2}`+"0".repeat(zeros), num=Number(numStr), n=numStr.length-1, mant=`${d1},${d2}`;
+      return { t:"stap", opgave:`Schrijf ${num} in wetenschappelijke notatie`, vars:[],
+        w:`a = ${mant} en de komma schuift ${n} plaatsen.`,
+        meer:`Zet de komma achter het eerste cijfer: ${mant}. Van ${mant} naar ${num} is ${n} keer schuiven, dus ${mant}·10^${n}.`,
+        stappen:[
+          { prompt:"Wat is het getal tussen 1 en 10 (de mantisse)?", a:mant, hints:[`Zet de komma vlak achter het eerste cijfer (${d1}).`, `Daarna komt ${d2}. Dus ${mant}.`] },
+          { prompt:"Hoeveel plaatsen schuift de komma (de macht van 10)?", a:String(n), hints:[`Tel van ${mant} naar ${num}.`, `Dat zijn ${n} plaatsen.`] } ] }; }
+  ];
+  G.wetenschappelijk_n3 = [
+    ()=>{ const d1=ri(1,9), d2=ri(1,9), d3=ri(1,9), zeros=ri(3,7), numStr=`${d1}${d2}${d3}`+"0".repeat(zeros), num=Number(numStr), n=numStr.length-1, mant=`${d1},${d2}${d3}`;
+      return { t:"velden", q:`Schrijf het grote getal ${num} in wetenschappelijke notatie.`,
+        velden:[ {label:"Het getal tussen 1 en 10 (a) =", a:mant}, {label:"De macht van 10 (n) =", a:String(n)} ],
+        w:`a = ${mant} en de komma schuift ${n} plaatsen naar links.`,
+        meer:`${num} = ${mant}·10^${n}. Tel de plaatsen van ${mant} terug naar ${num}: dat zijn er ${n}.` }; },
+    ()=>{ const d1=ri(1,9), d2=ri(0,9), lead=ri(2,4), n=lead+1, mant=(d2===0?`${d1}`:`${d1},${d2}`), decStr=`0,${"0".repeat(lead)}${d1}${d2}`;
+      return { t:"velden", q:`Schrijf het kleine getal ${decStr} in wetenschappelijke notatie.`,
+        velden:[ {label:"Het getal tussen 1 en 10 (a) =", a:mant}, {label:"De macht van 10 (n) =", a:`-${n}`} ],
+        w:`Klein getal → de macht is negatief: a = ${mant}, n = -${n}.`,
+        meer:`Bij ${decStr} staat het eerste cijfer op de ${n}e plaats achter de komma → ${mant}·10^-${n}.` }; }
+  ];
+
+  /* ---------- 8.5 MACHTEN MET LETTERS ---------- */
+  G.machtenletters_n1 = [
+    ()=>{ const L=pick(["a","x","p","y"]), k=ri(3,6), prod=Array(k).fill(L).join("·");
+      return { t:"stap", opgave:prod, vars:[L],
+        w:`${k} keer ${L} keer elkaar = ${L}^${k}.`,
+        meer:`Tel hoe vaak ${L} er staat: ${k} keer. Dus ${prod} = ${L}^${k}.`,
+        stappen:[{ prompt:"Schrijf als macht", a:`${L}^${k}`, hints:[`Tel het aantal ${L}'en: ${k}`, `${L}^${k}`] }] }; },
+    ()=>{ const L=pick(["a","x","p"]), p=ri(2,6), q=ri(1,5);
+      return { t:"stap", opgave:`${L}${pe(p)}·${L}${pe(q)}`, vars:[L],
+        w:`Keer met hetzelfde grondtal → exponenten optellen: ${p}+${q}=${p+q}.`,
+        meer:`${L}${pe(p)}·${L}${pe(q)} = ${L}^(${p}+${q}) = ${L}^${p+q}.`,
+        stappen:[{ prompt:"Herleid (tel de exponenten op)", a:`${L}^${p+q}`, hints:[`Zelfde grondtal ${L}, dus ${p} + ${q}`, `${L}^${p+q}`] }] }; }
+  ];
+  G.machtenletters_n2 = [
+    ()=>{ const L=pick(["a","x"]), C=ri(2,6), D=ri(2,6), p=ri(2,5), q=ri(2,4);
+      return { t:"bouw", q:`Herleid: ${C}${L}${pe(p)}·${D}${L}${pe(q)}`, a:`${C*D}${L}^${p+q}`, vars:[L],
+        w:`Getallen keer: ${C}·${D}=${C*D}. Exponenten plus: ${p}+${q}=${p+q}.`,
+        meer:`${C}${L}^${p}·${D}${L}^${q} = (${C}·${D})${L}^(${p}+${q}) = ${C*D}${L}^${p+q}.` }; },
+    ()=>{ const L=pick(["a","x"]), p=ri(2,5), C=ri(2,9), D=ri(2,9), s=pick([1,-1]), res=C+s*D;
+      const opg=`${C}${L}${pe(p)} ${s<0?"-":"+"} ${D}${L}${pe(p)}`;
+      return { t:"bouw", q:`Herleid: ${opg}`, a:co(res,L,p), vars:[L],
+        w:`Gelijke letter én exponent → tel de getallen: ${C} ${s<0?"-":"+"} ${D} = ${res}. De ${L}^${p} blijft staan.`,
+        meer:`${opg} = (${C} ${s<0?"-":"+"} ${D})${L}^${p} = ${co(res,L,p)}.` }; }
+  ];
+  G.machtenletters_n3 = [
+    ()=>{ const L=pick(["a","x"]), C=ri(2,7), D=pick([1,ri(2,6)]), p=ri(2,5), q=pick([1,ri(2,4)]), s=pick([1,-1]), res=s*C*D;
+      const t1=`${s<0?"-":""}${C}${L}${pe(p)}`, t2=`${D===1?L:D+L}${pe(q)}`, opg=`${t1}·${t2}`;
+      return { t:"bouw", q:`Herleid: ${opg}`, a:co(res,L,p+q), vars:[L],
+        w:`Getallen keer (${s<0?"-":""}${C}·${D}=${res}), exponenten plus (${p}+${q}=${p+q}).`,
+        meer:`${opg} = ${co(res,L,p+q)}.` }; }
+  ];
+
+  window.GENERATORS = G;
+})();
+
