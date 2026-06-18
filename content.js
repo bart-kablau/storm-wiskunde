@@ -101,6 +101,10 @@ window.LEERSTOF = [
               ],
               "a": "Het zijn gelijksoortige termen (allebei a)"
             },
+            "fout": {
+              "Omdat optellen altijd mag": "optellen mag níet zomaar — alleen als de termen gelijksoortig zijn (zelfde letter). 3a + 5b zou je bijvoorbeeld niet mogen samennemen.",
+              "Omdat 3 + 5 = 8": "dat 3 + 5 = 8 klopt, maar dat is niet de réden dat het mag. Het mag omdat het allebei a's zijn. Bij 3a + 5b is óók 3 + 5 = 8, en daar mag het juist niet."
+            },
             "stappen": [
               {
                 "toon": "3a + 5a",
@@ -422,6 +426,10 @@ window.LEERSTOF = [
                 "Omdat de 4 het grootste getal is"
               ],
               "a": "Omdat de 2 langs elk stukje binnen de haak gaat"
+            },
+            "fout": {
+              "Omdat 2·4 = 8 toevallig mooi uitkomt": "niet omdat het mooi uitkomt — de 2 moet langs élke term binnen de haak, of het nu een mooi getal wordt of niet.",
+              "Omdat de 4 het grootste getal is": "de grootte maakt niet uit. De 2 gaat langs álle termen in de haak, ook als de 4 juist het kleinste getal was."
             }
           },
           {
@@ -449,6 +457,10 @@ window.LEERSTOF = [
                 "Omdat 4b groter is dan 12"
               ],
               "a": "Omdat er binnen de haak ook een min stond"
+            },
+            "fout": {
+              "Omdat min altijd mooier is": "niet om mooi — het min komt doordat er binnen de haak een min stond (b − 3). De 4 langs −3 geeft −12.",
+              "Omdat 4b groter is dan 12": "grootte heeft er niets mee te maken. Het min-teken komt van de − die al binnen de haak stond."
             }
           },
           {
@@ -688,6 +700,10 @@ window.LEERSTOF = [
                 "Omdat je 18 en 12 mag optellen"
               ],
               "a": "Omdat de min vóór de haak het teken omdraait: min·min = plus"
+            },
+            "fout": {
+              "Omdat 12 een mooi getal is": "niet om mooi — de min vóór de haak draait elk teken binnen de haak om. Dus −(−12) wordt +12.",
+              "Omdat je 18 en 12 mag optellen": "dat is niet de reden. De +12 ontstaat doordat min·min = plus, niet doordat je zomaar mag optellen."
             }
           },
           {
@@ -820,6 +836,10 @@ window.LEERSTOF = [
                 "Omdat 5+3 = 8"
               ],
               "a": "De exponent 3 zegt: schrijf de 5 drie keer keer elkaar"
+            },
+            "fout": {
+              "Omdat je 5 keer 3 doet": "dat zou 5·3 = 15 zijn. Maar een macht is herhaald vermenigvuldigen van de 5 zelf: 5·5·5 = 125.",
+              "Omdat 5+3 = 8": "optellen hoort hier niet. De exponent 3 zegt hoe váák je de 5 met zichzelf vermenigvuldigt, niet wat je erbij optelt."
             }
           },
           {
@@ -855,6 +875,10 @@ window.LEERSTOF = [
                 "Omdat 2+4 = 6"
               ],
               "a": "8 zou 2·4 zijn, maar je moet de 2 vier keer keer elkaar doen"
+            },
+            "fout": {
+              "Omdat 2^4 altijd even is": "even of oneven zegt niets over de waarde. 2^4 = 2·2·2·2 = 16, en 16 is toevallig wel even, maar dat is niet waarom het geen 8 is.",
+              "Omdat 2+4 = 6": "je mag niet optellen. 2^4 betekent de 2 vier keer keer elkaar: 2·2·2·2 = 16."
             }
           },
           {
@@ -1115,6 +1139,10 @@ window.LEERSTOF = [
                 "Omdat de min vooraan staat"
               ],
               "a": "Keer en machten gaan vóór plus en min"
+            },
+            "fout": {
+              "Omdat 6-3 te makkelijk is": "niet om moeilijkheid — de volgorde van bewerkingen ligt vast: eerst machten en keer, daarna pas plus en min.",
+              "Omdat de min vooraan staat": "de plek van de min maakt niet uit. Je rekent altijd eerst de macht en de keer uit, en pas daarna trek je af."
             }
           },
           {
@@ -1234,6 +1262,10 @@ window.LEERSTOF = [
                 "Omdat 800 deelbaar is door 100"
               ],
               "a": "Omdat de komma 2 plaatsen schuift (8 → 80 → 800)"
+            },
+            "fout": {
+              "Omdat er 2 nullen in 800 staan": "nullen tellen werkt hier toevallig, maar dat is niet de regel. Het gaat om hoeveel plaatsen de komma schuift (8 → 80 → 800 = 2 stappen). Bij bv. 250 klopt het tellen van nullen niet meer.",
+              "Omdat 800 deelbaar is door 100": "deelbaarheid is niet de reden. De macht van 10 telt hoeveel plaatsen de komma opschuift, niet door welk getal je kunt delen."
             }
           },
           {
@@ -1261,6 +1293,10 @@ window.LEERSTOF = [
                 "Omdat 60 geen macht van 10 is"
               ],
               "a": "Omdat a tussen 1 en 10 moet liggen, en 60 is te groot"
+            },
+            "fout": {
+              "Omdat 6 een mooier getal is": "niet om mooi — het getal vóór de ×10 moet altijd tussen 1 en 10 liggen. 6 mag wel, 60 is te groot.",
+              "Omdat 60 geen macht van 10 is": "dat klopt op zich, maar dat is niet de reden. De regel is dat het eerste getal (a) tussen 1 en 10 moet liggen."
             }
           },
           {
@@ -1581,6 +1617,10 @@ window.LEERSTOF = [
                 "Omdat x altijd ^4 wordt"
               ],
               "a": "Omdat er 4 keer een x vermenigvuldigd wordt"
+            },
+            "fout": {
+              "Omdat 4 een mooi getal is": "niet om mooi — je telt simpelweg hoe vaak de x er staat. Vier keer x → x^4.",
+              "Omdat x altijd ^4 wordt": "x wordt niet altijd ^4. De exponent is precies het aantal x'en dat je vermenigvuldigt. Bij x·x is het x², bij x·x·x is het x³."
             }
           },
           {
@@ -1608,6 +1648,10 @@ window.LEERSTOF = [
                 "Omdat 3 en 4 naast elkaar liggen"
               ],
               "a": "Omdat het keer is met hetzelfde grondtal a"
+            },
+            "fout": {
+              "Omdat optellen altijd makkelijker is": "niet om gemak — bij vermenigvuldigen met hetzelfde grondtal tel je de exponenten op (a³·a⁴ = a⁷). Bij delen zou je ze juist aftrekken.",
+              "Omdat 3 en 4 naast elkaar liggen": "de plek van de getallen maakt niet uit. Je telt de exponenten op omdat het keer is met hetzelfde grondtal a."
             }
           },
           {
